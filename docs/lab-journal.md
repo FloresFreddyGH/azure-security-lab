@@ -17,3 +17,17 @@ I build and explain my decisions later.
 
 ### Next
 Review Azure costs and plan the lab resources before deploying them.
+
+### GitHub setup troubleshooting
+
+My first commit failed because I hadn't configured my Git author
+name and email. After setting those, I could commit locally.
+
+I then signed in through GitHub CLI to push from Ubuntu. GitHub
+blocked the push because the commit contained my private email
+address. I switched to my GitHub no-reply email and amended the
+commit. The next push worked.
+
+I learned that making a commit saves changes locally, while pushing
+uploads them to GitHub. I also learned that changing Git's email
+setting doesn't update commits I've already made.
