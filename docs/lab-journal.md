@@ -31,3 +31,51 @@ commit. The next push worked.
 I learned that making a commit saves changes locally, while pushing
 uploads them to GitHub. I also learned that changing Git's email
 setting doesn't update commits I've already made.
+little advancement... (it took like 10 minutes dont know why exactly)
+The workspace was successfully created in Sweden Central.
+No log sources are connected yet.
+
+
+### Finding an allowed deployment region
+
+The East US workspace setup was blocked by an Azure policy.
+I checked the policy parameters and found that my subscription
+allows Sweden Central, Belgium Central, Denmark East,
+Germany West Central, and France Central.
+
+I chose Sweden Central for the workspace after checking that
+it supports Azure Monitor Logs and Microsoft Sentinel.
+The resource group remains in East US because its location
+doesn't have to match the resources inside it.
+
+
+### Creating the lab resource group
+
+I created rg-azure-security-lab in East US to keep the lab
+resources together. I added Project and Environment tags
+so its purpose is easy to identify.
+
+The group is empty for now. Its region specifies where Azure
+stores the group's metadata; it doesn't force every resource
+I add later to use that same region.
+
+### Region restriction during workspace setup
+
+I tried creating the Log Analytics workspace in East US, but it was basically 
+blocked for Azure Students subscriptions which i didnt know before, after ten 
+minutes finally found why i couldnt access.
+
+At least this helped me understand the difference between a subscription
+policy restriction and a problem with the resource configuration.
+
+
+### Checking log retention
+
+I checked the workspace's default retention and left it at
+30 days. The portal says 31 days are included in the current
+pricing plan.
+
+Individual tables can have different retention settings, so
+I'll check those when I start collecting logs. I'll also save
+the evidence used in my reports rather than relying on logs
+being available for the whole semester.
