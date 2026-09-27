@@ -88,3 +88,27 @@ Individual tables can have different retention settings, so
 I'll check those when I start collecting logs. I'll also save
 the evidence used in my reports rather than relying on logs
 being available for the whole semester.
+
+### September 27, 2026 — Enabling Microsoft Sentinel
+
+I enabled Microsoft Sentinel on law-azure-security-lab.
+Azure confirmed that it was added successfully.
+
+The trial runs from September 27 through October 28, 2026,
+at 23:59:59 UTC. The activation banner says it covers up to
+10 GB per day for Sentinel and Log Analytics, with additional
+data billed beyond that allowance.
+
+Sentinel is enabled, but I haven't connected a log source or
+created detection rules yet. My next step is to collect Azure
+Activity logs so I can investigate changes in the subscription.
+
+### Installing the Azure Activity solution
+
+I installed the Azure Activity solution from Sentinel's Content
+hub. It provides a data connector and templates for working
+with Azure subscription activity.
+
+Installing the solution and connecting the logs are separate
+steps. I still need to configure the connector and verify
+that events reach my workspace.
