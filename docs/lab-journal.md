@@ -69,6 +69,15 @@ At least this helped me understand the difference between a subscription
 policy restriction and a problem with the resource configuration.
 
 
+### Reviewing workspace pricing
+
+I checked the workspace's Usage and estimated costs page.
+It's using Pay-as-you-go, and the displayed Analytics Logs
+ingestion rate is $2.99 per GB.
+
+The page notes that Microsoft Sentinel costs aren't included
+in these estimates. I'll account for that before enabling it.
+
 ### Checking log retention
 
 I checked the workspace's default retention and left it at
