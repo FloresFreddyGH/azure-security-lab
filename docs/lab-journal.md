@@ -112,3 +112,36 @@ with Azure subscription activity.
 Installing the solution and connecting the logs are separate
 steps. I still need to configure the connector and verify
 that events reach my workspace.
+
+### Learning KQL with AI assistance
+
+I used ChatGPT/Codex to help write my first KQL query and
+explain what each part does. I'm still learning KQL, so this
+gave me a starting point to work through.
+
+I ran the query in my own Azure workspace and checked the
+results. It returned three Activity log records, confirming
+that logs had reached the workspace.
+
+### September 28, 2026 — Querying and investigating Activity logs
+
+I confirmed that Azure Activity logs reached my workspace by
+running a KQL query that returned three records.
+
+I followed their shared correlation ID to inspect a
+diagnostic-settings write starting and succeeding, followed
+by a successful deployment record. The setting involved was
+subscriptionToLa at the subscription level.
+
+The successful write showed Log Analytics Contributor in its
+authorization evidence. Its identity claims identified an
+application identity and pointed to a policy assignment's
+managed identity. This fits the logging setup I configured,
+but I still need to compare the assignment ID with my policy.
+
+I used Codex to help write and explain the queries.
+I ran them myself and inspected the returned events while
+learning how filtering, sorting, and selecting fields work.
+
+Next: verify the exact policy identity and generate a
+controlled test event to investigate.
