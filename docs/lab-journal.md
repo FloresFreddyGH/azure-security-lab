@@ -145,3 +145,52 @@ learning how filtering, sorting, and selecting fields work.
 
 Next: verify the exact policy identity and generate a
 controlled test event to investigate.
+
+### September 28, 2026 — Verifying the caller identity
+
+I compared the policy's Principal ID with the caller in the
+successful diagnostic-settings event. They matched exactly.
+The policy assignment path also matched the event's xms_mirid
+claim.
+
+This confirmed that my logging policy's managed identity
+performed the change to subscriptionToLa.
+
+### Tracking a controlled tag change
+
+I added LabTest=activity-tracking-01 to my lab resource group
+at about 23:27 New York time on September 28.
+
+The portal kept loading, but after refreshing I confirmed
+the tag was saved. I then found its Start and Success records
+in Log Analytics at 03:27:48 UTC on September 29.
+
+The caller matched my account, and the records shared a
+correlation ID. This verified that I could make a known change
+and find the corresponding events in my monitoring workspace.
+
+### September 28, 2026 — Testing changes and creating a detection
+
+I confirmed that the logging policy's Principal ID matched
+the caller in the diagnostic-settings event. Its assignment
+path also matched the event's identity claims.
+
+I added LabTest=activity-tracking-01 to my resource group.
+I found its Start and Success records in Log Analytics,
+with my account as the caller. I then narrowed the KQL query
+to successful tag writes.
+
+I created an informational Sentinel rule in the Defender
+portal using this query. It runs every 5 minutes and checks
+the previous 15 minutes. It creates an alert when at least
+one event matches and groups alerts from this rule into
+incidents within a one-hour window.
+
+After confirming the rule was enabled, I changed the tag
+to activity-tracking-02 at approximately 23:53 New York time
+(03:53 UTC on September 29).
+
+I stopped before verifying whether an alert or incident was
+created. That check is my next step. This is a practice rule;
+a tag change alone does not indicate malicious activity.
+
