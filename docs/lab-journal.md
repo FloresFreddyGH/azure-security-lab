@@ -194,3 +194,23 @@ I stopped before verifying whether an alert or incident was
 created. That check is my next step. This is a practice rule;
 a tag change alone does not indicate malicious activity.
 
+### September 30, 2026 — Investigating and resolving the Sentinel incident
+
+The scheduled Sentinel rule generated an incident after my
+controlled LabTest tag change. The incident contained three
+alerts from the same rule because the rule ran every five minutes
+and looked back over the previous fifteen minutes.
+
+I opened the alert and verified the source event. It showed a
+successful MICROSOFT.RESOURCES/TAGS/WRITE operation on
+rg-azure-security-lab. The caller was my own account, and the
+event time matched the controlled test.
+
+The alert query returned one matching event in Advanced hunting.
+I classified the incident as a false alert caused by expected lab
+activity and resolved it. No malicious activity was identified.
+
+This completed an end-to-end test of log collection, KQL filtering,
+scheduled detection, alert generation, incident investigation,
+classification, and resolution.
+
