@@ -214,3 +214,47 @@ This completed an end-to-end test of log collection, KQL filtering,
 scheduled detection, alert generation, incident investigation,
 classification, and resolution.
 
+
+### September 30, 2026 — Improving and testing the detection
+
+I compared the three alerts from the original incident.
+Their source records had the same timestamp, correlation ID,
+caller, operation, and resource.
+
+I added an ingestion-time filter to the rule and mapped
+CallerIpAddress as an IP entity and _ResourceId as an Azure
+resource entity. The rule still runs every five minutes and
+looks back over fifteen minutes.
+
+I tested the update with LabTest=activity-tracking-03.
+The successful write occurred at 21:31:33 EDT and reached
+Log Analytics at approximately 21:41:01, a delay of about
+nine minutes and twenty-eight seconds.
+
+Incident 2 was created at 21:45:57 EDT. Its graph displayed
+the source IP and resource group. I checked the source event
+and added an investigation comment to the alert.
+
+At first I saw one alert, but by 21:57 the incident contained
+two. Both referenced the same controlled test event, so I
+could not conclude that duplicate detection was fixed.
+
+I inspected the queries associated with the two alerts.
+Their query_now values were 01:40:39 and 01:45:39 UTC on
+October 1. Both used ingestion_time() > ago(5m).
+The event's ingestion timestamp was later than the earlier
+query's reference time. The filter had no upper bound.
+
+With Codex assistance, I revised the filter to also require
+ingestion_time() <= now(). This bounds the ingestion window
+at both ends. I prepared a fourth controlled tag-change test
+to check the revision.
+
+Verification remains unfinished: I still need to confirm the
+saved rule, identify the fourth test's new correlation ID,
+and check its resulting alerts. The correlation ID initially
+copied for that test belonged to activity-tracking-03.
+
+The fifteen-minute event lookback remains a limitation for
+events that arrive too late. This is a practice detection;
+a successful tag write alone does not establish malicious activity.
