@@ -1,45 +1,14 @@
 # Azure Activity Monitoring and Incident Investigation with Microsoft Sentinel
 
-I recently passed AZ-900, and I wanted to put what I learned into
-practice. Since I'm interested in cybersecurity analyst roles,
-I'm building this lab to learn how to collect security logs,
-write detections, and investigate activity in Azure.
+I recently passed AZ-900 and wanted to put some of that studying into practice. I'm interested in cloud security, so I built this lab to get hands-on with Azure logs, KQL, and Microsoft Sentinel.
 
-## What I'm planning to build
+I started with a simple idea: change a tag on my own resource group, find the event in the logs, and see whether my rule picked it up. From there, I worked through investigating alerts, figuring out repeated detections, and resolving the incidents. It was a fun first project, with a few things to troubleshoot along the way.
 
-- A small Azure environment with dummy files and test permissions.
-- Log collection and monitoring with Microsoft Sentinel.
-- Detections for permission and storage configuration changes.
-- Investigation reports showing what happened, how I checked it,
-  and how I verified the fix.
+The tag changes were intentional lab actions. I used them to learn the monitoring workflow, rather than simulate an attack.
 
-## Current progress
+## What I built
 
-- [x] Verified my Azure student offer and confirmed the available credit.
-- [x] Created this repository.
-- [ ] Plan the environment and review costs.
-- [ ] Set up Azure resources and collect activity logs.
-- [ ] Write and test detections.
-- [ ] Document investigations and remediation.
-
-## About this project
-
-This is a personal learning lab, not a production environment.
-I'll use my own resources and dummy data, and document the setup,
-results, and troubleshooting as I go.
-
-# Azure Activity Monitoring and Incident Investigation with Microsoft Sentinel
-
-I built this lab to practice collecting Azure Activity logs,
-investigating resource changes with KQL, and following a
-Microsoft Sentinel alert through investigation and resolution.
-
-I used controlled resource-group tag changes to test the
-workflow. These were expected lab actions, not simulated attacks.
-
-## Scope and outcome
-
-I completed the following workflow:
+Here's what I worked through:
 
 1. Configured an Azure lab resource group and Log Analytics workspace.
 2. Enabled Microsoft Sentinel and configured Azure Activity log export.
@@ -50,8 +19,7 @@ I completed the following workflow:
 7. Added source IP and Azure resource entity mappings.
 8. Investigated and resolved the resulting incidents.
 
-The final controlled test produced one observed alert.
-This is a small lab validation, not a production readiness claim.
+By the final test, I observed one alert for the new tag change. That gave me a result I could document, along with the limits of what I'd tested.
 
 ## Architecture
 
@@ -139,12 +107,9 @@ in the incident graph.
 
 ## Investigation and tuning
 
-The initial test produced three alerts referring to the same
-source event. I compared timestamps, correlation IDs, callers,
-operations, and resource IDs.
+Getting an alert was a good start, but I ended up with three for the same source event. I compared the timestamps, correlation IDs, callers, operations, and resource IDs to understand what I was looking at.
 
-I first added only `ingestion_time() > ago(5m)`.
-The next controlled test still produced two alerts.
+My first change was adding `ingestion_time() > ago(5m)`. The next test still produced two alerts, so there was more to figure out.
 
 Their query reference times were 01:40:39 and 01:45:39 UTC.
 The successful event had an ingestion timestamp of approximately
@@ -229,13 +194,8 @@ subscription-level configuration.
 
 ## What I learned
 
-I practiced distinguishing event time, ingestion time, query
-reference time, and incident creation time.
+The biggest takeaway for me was learning to follow one change through the whole process. Event time, ingestion time, query reference time, and incident creation time looked similar at first, but comparing them helped me understand why I was seeing certain results.
 
-I learned to follow correlation IDs, verify an application's
-managed identity, investigate repeated alerts, and document
-unexpected results instead of assuming a rule worked.
+I also got practice following correlation IDs, checking a managed identity, and investigating repeated alerts. Keeping notes and screenshots helped me slow down and check what actually happened.
 
-I used ChatGPT/Codex to help write and explain KQL and troubleshoot
-the lab. I ran the tests, inspected the evidence, and made the
-Azure configuration changes myself.
+I used ChatGPT/Codex for help with KQL, troubleshooting, and organizing the documentation. I made the Azure changes, ran the tests, and checked the evidence myself. I'm still learning, and this lab gave me a lot more to talk about than just having read about Sentinel.

@@ -1,300 +1,117 @@
 # Lab Journal
 
+I recently passed AZ-900 and wanted to try building something in Azure myself. This is my first cloud security lab, so I'm learning as I go. Here's how it went, including the little things I had to figure out along the way.
+
 ## September 25, 2026 — Getting started
 
-I verified my Azure student offer, which showed $100 in available
-credit. I also created the GitHub repository and cloned it onto
-my Ubuntu computer.
+First things first: I checked my Azure student offer and confirmed the $100 credit. I created this repository and cloned it onto my Ubuntu computer. I wanted somewhere to keep my notes and screenshots before getting too far into the lab.
 
-I'm starting with the documentation so I can keep track of what
-I build and explain my decisions later.
+### Getting GitHub working
 
-### What I completed
-- Verified my Azure student offer.
-- Created the project repository on GitHub.
-- Cloned the repository onto Ubuntu.
-- Started this journal.
+Even the first push gave me something to learn. My first commit failed because I hadn't configured my Git author name and email. Once I fixed that, the commit worked locally, but GitHub blocked the push because it contained my private email address.
 
-### Next
-Review Azure costs and plan the lab resources before deploying them.
+I signed in with GitHub CLI, switched to my GitHub no-reply email, and amended the commit. Then the push worked. Small lesson already: committing saves changes locally, pushing sends them to GitHub, and changing my Git email doesn't automatically fix an old commit.
 
-### GitHub setup troubleshooting
+### Setting up the resource group and workspace
 
-My first commit failed because I hadn't configured my Git author
-name and email. After setting those, I could commit locally.
+I created `rg-azure-security-lab` in East US and added Project and Environment tags so I could tell what it was for.
 
-I then signed in through GitHub CLI to push from Ubuntu. GitHub
-blocked the push because the commit contained my private email
-address. I switched to my GitHub no-reply email and amended the
-commit. The next push worked.
+The Log Analytics workspace took a little more figuring out. I tried East US, but a policy on my subscription blocked that region. It took me about ten minutes to work out what was going on. The policy listed Sweden Central, Belgium Central, Denmark East, Germany West Central, and France Central as allowed regions.
 
-I learned that making a commit saves changes locally, while pushing
-uploads them to GitHub. I also learned that changing Git's email
-setting doesn't update commits I've already made.
-little advancement... (it took like 10 minutes dont know why exactly)
-The workspace was successfully created in Sweden Central.
-No log sources are connected yet.
+I went with Sweden Central after checking support for Azure Monitor Logs and Sentinel. The workspace was created successfully there. The resource group stayed in East US; I learned that its location is for the group's metadata and doesn't mean every resource inside it has to be in the same region.
 
+At this point I had a workspace, but no connected logs yet.
 
-### Finding an allowed deployment region
+### Checking costs before going further
 
-The East US workspace setup was blocked by an Azure policy.
-I checked the policy parameters and found that my subscription
-allows Sweden Central, Belgium Central, Denmark East,
-Germany West Central, and France Central.
+I checked Usage and estimated costs. The workspace showed Pay-as-you-go and an Analytics Logs ingestion rate of $2.99 per GB at the time. Sentinel costs weren't included in that estimate, so that was another thing to keep track of.
 
-I chose Sweden Central for the workspace after checking that
-it supports Azure Monitor Logs and Microsoft Sentinel.
-The resource group remains in East US because its location
-doesn't have to match the resources inside it.
+I left the default retention at 30 days. The portal showed 31 days included in the pricing plan, but individual tables can have their own settings. I'm keeping evidence in this repo too, so I don't have to rely on the logs staying available all semester.
 
+## September 27, 2026 — Turning on Sentinel
 
-### Creating the lab resource group
+I enabled Microsoft Sentinel on `law-azure-security-lab`, and Azure confirmed it was added successfully. One more part of the lab in place!
 
-I created rg-azure-security-lab in East US to keep the lab
-resources together. I added Project and Environment tags
-so its purpose is easy to identify.
+The activation banner showed a trial from September 27 through October 28, 2026, at 23:59:59 UTC. It listed up to 10 GB per day for Sentinel and Log Analytics, with additional data billed beyond that allowance. Those were the details shown during my setup.
 
-The group is empty for now. Its region specifies where Azure
-stores the group's metadata; it doesn't force every resource
-I add later to use that same region.
+### Getting some logs to work with
 
-### Region restriction during workspace setup
+I installed the Azure Activity solution from the Content hub. One thing I learned here: installing the solution and actually connecting the logs are separate steps. I still had to configure the connector and check that records arrived.
 
-I tried creating the Log Analytics workspace in East US, but it was basically 
-blocked for Azure Students subscriptions which i didnt know before, after ten 
-minutes finally found why i couldnt access.
+I used ChatGPT/Codex to help with my first KQL query and explain the parts I didn't understand yet. After working through the logging setup, I ran the query in my workspace and got three Activity log records back. It was nice to finally have actual results to look through.
 
-At least this helped me understand the difference between a subscription
-policy restriction and a problem with the resource configuration.
+## September 28, 2026 — Following the events
 
+With those records available, I started looking at what they meant. I followed their shared correlation ID and found a diagnostic-settings write that started and succeeded, followed by a successful deployment record. The setting was `subscriptionToLa` at the subscription level.
 
-### Reviewing workspace pricing
+The successful write showed Log Analytics Contributor in the authorization details. Its identity claims pointed to an application identity and a policy assignment's managed identity. That seemed to fit my logging setup, but I wanted to compare the actual IDs before calling it confirmed.
 
-I checked the workspace's Usage and estimated costs page.
-It's using Pay-as-you-go, and the displayed Analytics Logs
-ingestion rate is $2.99 per GB.
+I checked the policy's Principal ID against the event's caller, and they matched. The policy assignment path also matched the `xms_mirid` claim. That connected the change back to the managed identity used by my logging policy.
 
-The page notes that Microsoft Sentinel costs aren't included
-in these estimates. I'll account for that before enabling it.
+Codex helped me write and understand the queries while I practiced filtering, sorting, and choosing fields to display. I ran them in Azure and checked the records myself.
 
-### Checking log retention
+### Making a change I could track
 
-I checked the workspace's default retention and left it at
-30 days. The portal says 31 days are included in the current
-pricing plan.
+I added `LabTest=activity-tracking-01` to the resource group at about 23:27 New York time. The portal kept loading, but refreshing showed that the tag had saved.
 
-Individual tables can have different retention settings, so
-I'll check those when I start collecting logs. I'll also save
-the evidence used in my reports rather than relying on logs
-being available for the whole semester.
+Then I found the Start and Success records in Log Analytics at 03:27:48 UTC on September 29. My account was the caller, and the records shared a correlation ID. This was a useful little test: make a known change, then find its trail in the logs.
 
-### September 27, 2026 — Enabling Microsoft Sentinel
+### Building my first detection
 
-I enabled Microsoft Sentinel on law-azure-security-lab.
-Azure confirmed that it was added successfully.
+I narrowed the query to successful tag writes and created an informational Sentinel rule in the Defender portal. It runs every five minutes, looks back fifteen minutes, and alerts when it finds more than zero matching records. Alerts from this rule can be grouped into an incident within a one-hour window.
 
-The trial runs from September 27 through October 28, 2026,
-at 23:59:59 UTC. The activation banner says it covers up to
-10 GB per day for Sentinel and Log Analytics, with additional
-data billed beyond that allowance.
+Once the rule was enabled, I changed the tag to `activity-tracking-02` at approximately 23:53 New York time, or 03:53 UTC on September 29.
 
-Sentinel is enabled, but I haven't connected a log source or
-created detection rules yet. My next step is to collect Azure
-Activity logs so I can investigate changes in the subscription.
+I stopped there for the session. Next up was checking whether the rule had created an alert and incident. The tag change was just a safe way to test the workflow; it wasn't malicious activity.
 
-### Installing the Azure Activity solution
+## September 30, 2026 — My first incident investigation
 
-I installed the Azure Activity solution from Sentinel's Content
-hub. It provides a data connector and templates for working
-with Azure subscription activity.
+The rule had generated an incident from my controlled tag change. It contained three alerts from the same rule. Since the rule ran every five minutes with a fifteen-minute lookback, the same event could show up in more than one run.
 
-Installing the solution and connecting the logs are separate
-steps. I still need to configure the connector and verify
-that events reach my workspace.
+I opened the alert and checked the source record: a successful `MICROSOFT.RESOURCES/TAGS/WRITE` operation on `rg-azure-security-lab`. The caller was my account, and the time matched my test. The alert query also returned one matching event in Advanced hunting.
 
-### Learning KQL with AI assistance
+I resolved the incident as a false alert caused by expected lab activity. That was the classification I used for this first incident; no malicious activity was identified.
 
-I used ChatGPT/Codex to help write my first KQL query and
-explain what each part does. I'm still learning KQL, so this
-gave me a starting point to work through.
+At this point I had followed a change from the Azure logs to an alert, an incident, and a resolution. Pretty cool to see those pieces working together. I still wanted to understand the repeated alerts, though.
 
-I ran the query in my own Azure workspace and checked the
-results. It returned three Activity log records, confirming
-that logs had reached the workspace.
+### Working on the repeated alerts
 
-### September 28, 2026 — Querying and investigating Activity logs
+I compared the three source records. Same timestamp, correlation ID, caller, operation, and resource. They referred to the same event.
 
-I confirmed that Azure Activity logs reached my workspace by
-running a KQL query that returned three records.
+I added `ingestion_time() > ago(5m)` to the rule. I also mapped `CallerIpAddress` as an IP entity and `_ResourceId` as an Azure resource entity, keeping the five-minute schedule and fifteen-minute lookback.
 
-I followed their shared correlation ID to inspect a
-diagnostic-settings write starting and succeeding, followed
-by a successful deployment record. The setting involved was
-subscriptionToLa at the subscription level.
+For the next test, I used `LabTest=activity-tracking-03`. The successful write happened at 21:31:33 EDT, but it didn't reach Log Analytics until about 21:41:01. That's roughly nine minutes and twenty-eight seconds of ingestion delay. The empty query results earlier in the test made more sense once I compared those times.
 
-The successful write showed Log Analytics Contributor in its
-authorization evidence. Its identity claims identified an
-application identity and pointed to a policy assignment's
-managed identity. This fits the logging setup I configured,
-but I still need to compare the assignment ID with my policy.
+Incident 2 was created at 21:45:57 EDT. This time the graph showed the source IP and resource group, which made the entity mapping easier to understand. I checked the source event and saved an investigation comment on the alert.
 
-I used Codex to help write and explain the queries.
-I ran them myself and inspected the returned events while
-learning how filtering, sorting, and selecting fields work.
+At first there was one alert. By 21:57 there were two, both for the same test event. So I couldn't call the repeated-alert issue fixed yet.
 
-Next: verify the exact policy identity and generate a
-controlled test event to investigate.
+### Looking closer at the time window
 
-### September 28, 2026 — Verifying the caller identity
+The two alert queries had `query_now` values of 01:40:39 and 01:45:39 UTC on October 1. Both used the ingestion-time lower bound, but neither had an upper bound. The event's ingestion timestamp was later than the earlier query's reference time.
 
-I compared the policy's Principal ID with the caller in the
-successful diagnostic-settings event. They matched exactly.
-The policy assignment path also matched the event's xms_mirid
-claim.
+With Codex's help, I added `ingestion_time() <= now()` as well, so the filter had both a beginning and an end. Then I prepared another tag change to test it.
 
-This confirmed that my logging policy's managed identity
-performed the change to subscriptionToLa.
+I also caught a small mix-up: the correlation ID I initially copied for the fourth test belonged to `activity-tracking-03`. I needed the new test's own ID to follow the right event. The next entry records that check and the result.
 
-### Tracking a controlled tag change
+### Fourth test and wrapping up the incident
 
-I added LabTest=activity-tracking-01 to my lab resource group
-at about 23:27 New York time on September 28.
+I changed the tag to `LabTest=activity-tracking-04`. The successful write happened at 22:05:28 EDT and reached Log Analytics at 22:13:46, about eight minutes and eighteen seconds later.
 
-The portal kept loading, but after refreshing I confirmed
-the tag was saved. I then found its Start and Success records
-in Log Analytics at 03:27:48 UTC on September 29.
+This test's correlation ID was `932c7419-ac40-456e-8797-0de4173d01fd`.
 
-The caller matched my account, and the records shared a
-correlation ID. This verified that I could make a known change
-and find the corresponding events in my monitoring workspace.
+I checked the alert query and confirmed it used both `ingestion_time() > ago(5m)` and `ingestion_time() <= now()`. Its query reference time was October 1 at 02:15:04 UTC.
 
-### September 28, 2026 — Testing changes and creating a detection
+At 22:28 EDT, Incident 2 had three alerts total: two from the earlier test and one from this fourth test. I observed just one alert for the fourth test during that period. That was a good result for this test, although it doesn't prove duplicates can never happen.
 
-I confirmed that the logging policy's Principal ID matched
-the caller in the diagnostic-settings event. Its assignment
-path also matched the event's identity claims.
+After checking the source records and the mapped IP and resource, I resolved Incident 2 at about 22:34 EDT. The portal showed **Benign Positive**, which described this intentional lab activity.
 
-I added LabTest=activity-tracking-01 to my resource group.
-I found its Start and Success records in Log Analytics,
-with my account as the caller. I then narrowed the KQL query
-to successful tag writes.
+### What I'm taking away from this lab
 
-I created an informational Sentinel rule in the Defender
-portal using this query. It runs every 5 minutes and checks
-the previous 15 minutes. It creates an alert when at least
-one event matches and groups alerts from this rule into
-incidents within a one-hour window.
+Overall, this was a fun way to get more comfortable with Azure after AZ-900. The setup, queries, and screenshots gave me something concrete to work through, and the troubleshooting ended up being a big part of the learning.
 
-After confirming the rule was enabled, I changed the tag
-to activity-tracking-02 at approximately 23:53 New York time
-(03:53 UTC on September 29).
+The timestamps were probably the biggest lesson: event time, ingestion time, query reference time, and incident creation time tell different parts of the story. I also learned that putting alerts into one incident doesn't get rid of duplicate alerts.
 
-I stopped before verifying whether an alert or incident was
-created. That check is my next step. This is a practice rule;
-a tag change alone does not indicate malicious activity.
+There's still more I could test. Events that arrive outside the fifteen-minute lookback can be missed, and I haven't tested scheduler failures, retries, or high volumes. For this lab, I kept the scope to successful tag writes in my resource group.
 
-### September 30, 2026 — Investigating and resolving the Sentinel incident
-
-The scheduled Sentinel rule generated an incident after my
-controlled LabTest tag change. The incident contained three
-alerts from the same rule because the rule ran every five minutes
-and looked back over the previous fifteen minutes.
-
-I opened the alert and verified the source event. It showed a
-successful MICROSOFT.RESOURCES/TAGS/WRITE operation on
-rg-azure-security-lab. The caller was my own account, and the
-event time matched the controlled test.
-
-The alert query returned one matching event in Advanced hunting.
-I classified the incident as a false alert caused by expected lab
-activity and resolved it. No malicious activity was identified.
-
-This completed an end-to-end test of log collection, KQL filtering,
-scheduled detection, alert generation, incident investigation,
-classification, and resolution.
-
-
-### September 30, 2026 — Improving and testing the detection
-
-I compared the three alerts from the original incident.
-Their source records had the same timestamp, correlation ID,
-caller, operation, and resource.
-
-I added an ingestion-time filter to the rule and mapped
-CallerIpAddress as an IP entity and _ResourceId as an Azure
-resource entity. The rule still runs every five minutes and
-looks back over fifteen minutes.
-
-I tested the update with LabTest=activity-tracking-03.
-The successful write occurred at 21:31:33 EDT and reached
-Log Analytics at approximately 21:41:01, a delay of about
-nine minutes and twenty-eight seconds.
-
-Incident 2 was created at 21:45:57 EDT. Its graph displayed
-the source IP and resource group. I checked the source event
-and added an investigation comment to the alert.
-
-At first I saw one alert, but by 21:57 the incident contained
-two. Both referenced the same controlled test event, so I
-could not conclude that duplicate detection was fixed.
-
-I inspected the queries associated with the two alerts.
-Their query_now values were 01:40:39 and 01:45:39 UTC on
-October 1. Both used ingestion_time() > ago(5m).
-The event's ingestion timestamp was later than the earlier
-query's reference time. The filter had no upper bound.
-
-With Codex assistance, I revised the filter to also require
-ingestion_time() <= now(). This bounds the ingestion window
-at both ends. I prepared a fourth controlled tag-change test
-to check the revision.
-
-Verification remains unfinished: I still need to confirm the
-saved rule, identify the fourth test's new correlation ID,
-and check its resulting alerts. The correlation ID initially
-copied for that test belonged to activity-tracking-03.
-
-The fifteen-minute event lookback remains a limitation for
-events that arrive too late. This is a practice detection;
-a successful tag write alone does not establish malicious activity.
-
-### September 30, 2026 — Final detection test and incident resolution
-
-I completed the fourth controlled test using
-LabTest=activity-tracking-04.
-
-The successful tag write occurred at 22:05:28 EDT and reached
-Log Analytics at 22:13:46 EDT, approximately eight minutes and
-eighteen seconds later. Its correlation ID was
-932c7419-ac40-456e-8797-0de4173d01fd.
-
-I verified that its alert used the revised query with both
-ingestion_time() > ago(5m) and ingestion_time() <= now().
-The alert's query reference time was October 1 at 02:15:04 UTC.
-
-At 22:28 EDT, Incident 2 contained three alerts: two associated
-with the earlier test and one associated with the fourth test.
-I observed one alert for the fourth test during this observation
-period. This supports the change for this test, but does not
-prove that duplicate alerts are impossible in every situation.
-
-The incident graph displayed the mapped source IP and Azure
-resource. I investigated the source records and resolved
-Incident 2 at approximately 22:34 EDT. The portal displayed
-the classification as Benign Positive.
-
-I learned to distinguish event time, ingestion time, query
-reference time, and incident creation time. I also learned
-that grouping alerts into one incident does not remove
-duplicate alerts.
-
-The detection still has limitations. Events outside the
-fifteen-minute event lookback can be missed, and I have not
-tested scheduler failures, retries, or high event volumes.
-The rule detects successful tag writes in my lab resource
-group; it does not establish that an action is malicious.
-
-I used Codex to help explain the queries and troubleshoot
-the behavior. I made the changes and checked the results
-in my Azure environment.
+ChatGPT/Codex helped me understand the queries, troubleshoot, and organize these notes. I made the Azure changes, ran the tests, and checked the evidence myself. I'm still learning, but now I have a whole monitoring and investigation workflow that I've actually worked through.
