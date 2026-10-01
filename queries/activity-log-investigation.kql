@@ -1,0 +1,10 @@
+// Investigate recent operations in the lab resource group.
+// Narrow by CorrelationId when tracing a specific operation.
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where ResourceGroup =~ "rg-azure-security-lab"
+| project TimeGenerated, OperationNameValue,
+          ActivityStatusValue, Caller, CallerIpAddress,
+          ResourceGroup, CorrelationId, _ResourceId
+| order by TimeGenerated desc
+

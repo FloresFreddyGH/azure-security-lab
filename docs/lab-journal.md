@@ -258,3 +258,43 @@ copied for that test belonged to activity-tracking-03.
 The fifteen-minute event lookback remains a limitation for
 events that arrive too late. This is a practice detection;
 a successful tag write alone does not establish malicious activity.
+
+### September 30, 2026 — Final detection test and incident resolution
+
+I completed the fourth controlled test using
+LabTest=activity-tracking-04.
+
+The successful tag write occurred at 22:05:28 EDT and reached
+Log Analytics at 22:13:46 EDT, approximately eight minutes and
+eighteen seconds later. Its correlation ID was
+932c7419-ac40-456e-8797-0de4173d01fd.
+
+I verified that its alert used the revised query with both
+ingestion_time() > ago(5m) and ingestion_time() <= now().
+The alert's query reference time was October 1 at 02:15:04 UTC.
+
+At 22:28 EDT, Incident 2 contained three alerts: two associated
+with the earlier test and one associated with the fourth test.
+I observed one alert for the fourth test during this observation
+period. This supports the change for this test, but does not
+prove that duplicate alerts are impossible in every situation.
+
+The incident graph displayed the mapped source IP and Azure
+resource. I investigated the source records and resolved
+Incident 2 at approximately 22:34 EDT. The portal displayed
+the classification as Benign Positive.
+
+I learned to distinguish event time, ingestion time, query
+reference time, and incident creation time. I also learned
+that grouping alerts into one incident does not remove
+duplicate alerts.
+
+The detection still has limitations. Events outside the
+fifteen-minute event lookback can be missed, and I have not
+tested scheduler failures, retries, or high event volumes.
+The rule detects successful tag writes in my lab resource
+group; it does not establish that an action is malicious.
+
+I used Codex to help explain the queries and troubleshoot
+the behavior. I made the changes and checked the results
+in my Azure environment.

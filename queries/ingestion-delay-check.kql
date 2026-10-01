@@ -1,0 +1,12 @@
+// Compare event time with approximate workspace ingestion time.
+// This investigation query uses a wider window than the rule.
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where ResourceGroup =~ "rg-azure-security-lab"
+| where OperationNameValue =~ "MICROSOFT.RESOURCES/TAGS/WRITE"
+| where ActivityStatusValue =~ "Success"
+| extend IngestedAt = ingestion_time()
+| extend IngestionDelay = IngestedAt - TimeGenerated
+| project TimeGenerated, IngestedAt, IngestionDelay,
+          Caller, CallerIpAddress, CorrelationId, _ResourceId
+| order by TimeGenerated desc

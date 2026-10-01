@@ -1,0 +1,16 @@
+// Scheduled lab detection:
+// Run every 5 minutes; look back over 15 minutes.
+// Map IP.Address to CallerIpAddress.
+// Map AzureResource.ResourceId to _ResourceId.
+// This detects a lab operation, not malicious intent.
+AzureActivity
+| where TimeGenerated >= ago(15m)
+| where ingestion_time() > ago(5m)
+    and ingestion_time() <= now()
+| where ResourceGroup =~ "rg-azure-security-lab"
+| where OperationNameValue =~ "MICROSOFT.RESOURCES/TAGS/WRITE"
+| where ActivityStatusValue =~ "Success"
+| project TimeGenerated, Caller, CallerIpAddress,
+          OperationNameValue, ActivityStatusValue,
+          ResourceGroup, CorrelationId, _ResourceId
+
