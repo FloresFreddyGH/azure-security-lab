@@ -1,4 +1,4 @@
-# Azure Security Monitoring Lab
+# Azure Activity Monitoring and Incident Investigation with Microsoft Sentinel
 
 I recently passed AZ-900, and I wanted to put what I learned into
 practice. Since I'm interested in cybersecurity analyst roles,
@@ -239,4 +239,3 @@ unexpected results instead of assuming a rule worked.
 I used ChatGPT/Codex to help write and explain KQL and troubleshoot
 the lab. I ran the tests, inspected the evidence, and made the
 Azure configuration changes myself.
-
