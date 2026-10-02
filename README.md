@@ -198,4 +198,24 @@ The biggest takeaway for me was learning to follow one change through the whole 
 
 I also got practice following correlation IDs, checking a managed identity, and investigating repeated alerts. Keeping notes and screenshots helped me slow down and check what actually happened.
 
-I used ChatGPT/Codex for help with KQL, troubleshooting, and organizing the documentation. I made the Azure changes, ran the tests, and checked the evidence myself. I'm still learning, and this lab gave me a lot more to talk about than just having read about Sentinel.
+I used used AI for help with KQL and troubleshooting.I made the Azure changes, ran the tests, and checked the evidence myself. I'm still learning, and this lab gave me a lot more to talk about than just having read about Sentinel.
+
+READY FOR THE NEXT LAB 
+
+
+      .::::::::::::::::.
+    .::::::::::::::::::::.
+   .::  ''''      ''''  ::.
+  .::    (o)      (o)    ::.
+  ::.                    .::
+  ::.                    .::
+  '::.    \________/    .::'
+   '::.                .::'
+     '::::::::::::::::'
+
+   _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _ 
+  (_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)                                  
+  (_)                                             (_)                                      
+  (_)    P R O J E C T   L O A D I N G . . .      (_)                                 
+  (_)                                             (_)                          
+  (_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)(_)                           
