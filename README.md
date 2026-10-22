@@ -2,18 +2,18 @@
 
 I recently passed AZ-900 and wanted to put some of that studying into practice. I'm interested in cloud security, so I built this lab to get hands-on with Azure logs, KQL, and Microsoft Sentinel.
 
-I started with a simple idea: change a tag on my own resource group, find the event in the logs, and see whether my rule picked it up. From there, I worked through investigating alerts, figuring out repeated detections, and resolving the incidents. It was a fun first project, with a few things to troubleshoot along the way.
+I started with a simple idea: change a tag on my own resource group, after that finding the event in the logs and see whether my rule identify it. From there, I worked through investigating alerts, figuring out repeated detections, and resolving the incidents. It was a fun first project, with a few things to troubleshoot along the way.
 
-The tag changes were intentional lab actions. I used them to learn the monitoring workflow, rather than simulate an attack.
+The tag changes were intentional and I used them to learn the monitoring workflow, rather than simulate an attack.
 
 ## What I built
 
 Here's what I worked through:
 
 1. Configured an Azure lab resource group and Log Analytics workspace.
-2. Enabled Microsoft Sentinel and configured Azure Activity log export.
+2. Enabled Sentinel and configured the Activity log export.
 3. Verified the managed identity responsible for the logging setup.
-4. Generated controlled tag changes and located their Activity log records.
+4. Did controlled tag changes and located their Activity log records.
 5. Created and tested a scheduled detection rule.
 6. Investigated repeated alerts and measured ingestion delay.
 7. Added source IP and Azure resource entity mappings.
@@ -24,14 +24,19 @@ By the final test, I observed one alert for the new tag change. That gave me a r
 ## Architecture
 
 ```mermaid
-flowchart LR
-    A[Controlled resource-group tag change] --> B[Azure Activity log]
-    B --> C[Subscription diagnostic setting]
-    C --> D[Log Analytics workspace]
-    D --> E[Scheduled Sentinel KQL rule]
-    E --> F[Alert]
-    F --> G[Incident in Microsoft Defender]
-    G --> H[Investigation and resolution]
+%%{init: {"themeVariables": {"fontSize": "24px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 65}}}%%
+flowchart TB
+    A["Controlled resource-group tag change"]
+    --> B["Azure Activity log"]
+    --> C["Subscription diagnostic setting"]
+    --> D["Log Analytics workspace"]
+    --> E["Scheduled Sentinel KQL rule"]
+    --> F["Alert"]
+    --> G["Incident in Microsoft Defender"]
+    --> H["Investigation and resolution"]
+
+    classDef large font-size:24px,stroke-width:2px;
+    class A,B,C,D,E,F,G,H large;
 ```
 
 Azure Policy and its managed identity configured the subscription
