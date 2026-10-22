@@ -1,6 +1,6 @@
 # Azure Activity Monitoring and Incident Investigation with Microsoft Sentinel
 
-I recently passed AZ-900 and wanted to put some of that studying into practice. I'm interested in cloud security, so I built this lab to get hands-on with Azure logs, KQL, and Microsoft Sentinel.
+After earning my AZ-900 certification, I wanted to take what I had learned beyond the exam and put it into practice. With a interest in cloud security, I built this lab to gain more experience with Azure Activity logs, KQL, and Sentinel.I really made an effort to document every step, even the challenges I encountered, how I investigated them, and what I learned. My goal wasn't just to strengthen my technical skills, but also to develop the documentation and investigative habits that are essential in cybersecurity and real-world security operations.
 
 I started with a simple idea: change a tag on my own resource group, after that finding the event in the logs and see whether my rule identify it. From there, I worked through investigating alerts, figuring out repeated detections, and resolving the incidents. It was a fun first project, with a few things to troubleshoot along the way.
 
@@ -23,21 +23,30 @@ By the final test, I observed one alert for the new tag change. That gave me a r
 
 ## Architecture
 
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "24px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 65}}}%%
-flowchart TB
-    A["Controlled resource-group tag change"]
-    --> B["Azure Activity log"]
-    --> C["Subscription diagnostic setting"]
-    --> D["Log Analytics workspace"]
-    --> E["Scheduled Sentinel KQL rule"]
-    --> F["Alert"]
-    --> G["Incident in Microsoft Defender"]
-    --> H["Investigation and resolution"]
 
-    classDef large font-size:24px,stroke-width:2px;
-    class A,B,C,D,E,F,G,H large;
+```mermaid
+%%{init: {"theme": "dark", "themeVariables": {"background": "#0d1117", "fontSize": "24px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 65}}}%%
+flowchart TB
+    subgraph DARK[" "]
+        direction TB
+        A["Controlled resource-group tag change"]
+        --> B["Azure Activity log"]
+        --> C["Subscription diagnostic setting"]
+        --> D["Log Analytics workspace"]
+        --> E["Scheduled Sentinel KQL rule"]
+        --> F["Alert"]
+        --> G["Incident in Microsoft Defender"]
+        --> H["Investigation and resolution"]
+    end
+
+    style DARK fill:#0d1117,stroke:#0d1117,stroke-width:0px
+
+    classDef dark fill:#161b22,color:#f0f6fc,stroke:#58a6ff,stroke-width:2px,font-size:24px;
+    class A,B,C,D,E,F,G,H dark;
+
+    linkStyle default stroke:#8b949e,stroke-width:2px;
 ```
+
 
 Azure Policy and its managed identity configured the subscription
 diagnostic setting that sends Activity logs to the workspace.
@@ -61,8 +70,8 @@ To reproduce this lab in another subscription:
 
 1. Create a dedicated resource group and Log Analytics workspace.
 2. Configure budget notifications and review workspace retention and ingestion settings.
-3. Enable Microsoft Sentinel on the workspace.
-4. Install the Azure Activity solution and configure its connector.
+3. Enable Sentinel on the workspace.
+4. Install the Azure Activity solution and configure the connector.
 5. Assign the policy that streams Azure Activity logs to the workspace.
 6. Configure its managed identity and required permissions, and remediate existing resources where needed.
 7. Verify that `AzureActivity` contains subscription events.
