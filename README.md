@@ -21,12 +21,10 @@ Here's what I worked through:
 
 By the final test, I observed one alert for the new tag change. That gave me a result I could document, along with the limits of what I'd tested.
 
-## Architecture
-
 
 ## Architecture
 
-![Azure Security Lab Architecture](screenshots/Analysis_Output_1.png)
+![Azure Security Lab Architecture](screenshots/Analysis%20output%201.png)
 
 
 Azure Policy and its managed identity configured the subscription
