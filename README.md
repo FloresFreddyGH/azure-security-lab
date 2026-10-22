@@ -26,7 +26,7 @@ By the final test, I observed one alert for the new tag change. That gave me a r
 
 ## Architecture
 
-![Azure Security Lab Architecture](screenshots/Analysis_Output.png)
+![Azure Security Lab Architecture](screenshots/Analysis_Output_1.png)
 
 
 Azure Policy and its managed identity configured the subscription
