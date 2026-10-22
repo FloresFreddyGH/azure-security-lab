@@ -24,28 +24,9 @@ By the final test, I observed one alert for the new tag change. That gave me a r
 ## Architecture
 
 
-```mermaid
-%%{init: {"theme": "dark", "themeVariables": {"background": "#0d1117", "fontSize": "24px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 65}}}%%
-flowchart TB
-    subgraph DARK[" "]
-        direction TB
-        A["Controlled resource-group tag change"]
-        --> B["Azure Activity log"]
-        --> C["Subscription diagnostic setting"]
-        --> D["Log Analytics workspace"]
-        --> E["Scheduled Sentinel KQL rule"]
-        --> F["Alert"]
-        --> G["Incident in Microsoft Defender"]
-        --> H["Investigation and resolution"]
-    end
+## Architecture
 
-    style DARK fill:#0d1117,stroke:#0d1117,stroke-width:0px
-
-    classDef dark fill:#161b22,color:#f0f6fc,stroke:#58a6ff,stroke-width:2px,font-size:24px;
-    class A,B,C,D,E,F,G,H dark;
-
-    linkStyle default stroke:#8b949e,stroke-width:2px;
-```
+![Azure Security Lab Architecture](screenshots/Analysis_Output.png)
 
 
 Azure Policy and its managed identity configured the subscription
