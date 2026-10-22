@@ -1,5 +1,5 @@
-// Investigate recent operations in the lab resource group.
-// Narrow by CorrelationId when tracing a specific operation.
+// Investigate recent operations specifically in the lab resource group.
+// Narrow by CorrelationId when tracing operation.
 AzureActivity
 | where TimeGenerated > ago(24h)
 | where ResourceGroup =~ "rg-azure-security-lab"
