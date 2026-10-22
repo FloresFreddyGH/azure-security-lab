@@ -1,8 +1,8 @@
 // Scheduled lab detection:
-// Run every 5 minutes; look back over 15 minutes.
+// Run every 5 minutes and then look back over 15 minutes.
 // Map IP.Address to CallerIpAddress.
 // Map AzureResource.ResourceId to _ResourceId.
-// This detects a lab operation, not malicious intent.
+// This detects a lab operation, and not a malicious intent.
 AzureActivity
 | where TimeGenerated >= ago(15m)
 | where ingestion_time() > ago(5m)
